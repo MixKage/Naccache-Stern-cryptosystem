@@ -2,7 +2,7 @@ import random
 
 
 def myPow(x, y, N):
-    return pow(x, y, N)
+    return __pow__(x, y, N)
 
 def myDivide(N, D):
     return int(__divide__(N, D))
@@ -15,6 +15,43 @@ def __pow__(x, y, N):
         return (z * z) % N
     else:
         return (x * z * z) % N
+
+# Генерация массива простых чисел, где простые числа не могут повторяться
+def generate_array_prime_number(lenght = 100, maxInt = 214123):
+    arrayPrimeNumber = []
+    if(lenght % 2 != 0):
+        lenght = 10
+        print("Lenght не может быть не чётным")
+    
+    for _ in range(lenght):
+        if(len(arrayPrimeNumber)==0):
+            arrayPrimeNumber.append(generate_prime_small_number(0, [], maxInt))
+        else:
+            arrayPrimeNumber.append(generate_prime_small_number(arrayPrimeNumber[0],arrayPrimeNumber,maxInt))
+    arrayPrimeNumber.sort()
+    return arrayPrimeNumber
+
+# Генерация маленьких простых чисел
+def generate_prime_small_number(min, arrayPrimeNumber, max = 214123):
+    randNum = random.randint(min, max)
+    while True:
+        if(miller_rabi(randNum) and not (randNum in arrayPrimeNumber)):
+            return randNum
+        else:
+            if randNum % 2 == 0:
+                randNum += 1
+            else:
+                randNum += 2
+
+
+# Перибор
+def is_prime_enumeration(num):
+    if num % 2 == 0:
+        return num == 2
+    d = 3
+    while d * d <= num and num % d != 0:
+        d += 2
+    return d * d > num
 
 # Ферма
 def is_prime_ferma(num, test_count=120):

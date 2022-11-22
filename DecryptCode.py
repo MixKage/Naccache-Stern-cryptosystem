@@ -20,9 +20,10 @@ class Decrypt:
         mk = []
        
         for pi in self.pk:
-            ci = pow(c, int(MyMath.myDivide(self.phi, pi)), self.n)
+            ci = myPow(c, int(MyMath.myDivide(self.phi, pi)), self.n)
             for j in range(0, pi):
-                if ci == pow(self.g, myDivide(self.phi * j, pi), self.n):
+                # print(myPow(self.g, myDivide(self.phi * j, pi), self.n))
+                if ci == myPow(self.g, myDivide(self.phi * j, pi), self.n):
                     mk.append(j)
         return crt(list(self.pk), list(mk))
 
@@ -30,13 +31,15 @@ class Decrypt:
 # список m содержит все модули
 # list x содержит остатки уравнений
 def crt(m, x): 
-
+    if(len(x)==0):
+        print("X = 0")
+        return 0
         # Мы запускаем этот цикл, пока список
         # остаток имеет длину больше 1
     while True: 
         # temp1 будет содержать новое значение
         # А., который рассчитывается в соответствии с
-        # к уравнению m1' * m1 * x0 + m0' * м0 * х1
+        # к уравнению m1' * m1 * x0 + m0' * m0 * х1
         temp1 = modinv(m[1],m[0]) * x[0] * m[1] + modinv(m[0],m[1]) * x[1] * m[0] 
         # temp2 содержит значение модуля
         # в новом уравнении, которое будет
@@ -45,9 +48,9 @@ def crt(m, x):
         temp2 = m[0] * m[1] 
 
         # затем мы удаляем первые два элемента
-        # из списка остатков и заменить
+        # из списка остатков и заменим
         # с остатком, который будет
-        # быть temp1 % temp2
+        # temp1 % temp2
         x.remove(x[0]) 
         x.remove(x[0]) 
         x = [temp1 % temp2] + x 

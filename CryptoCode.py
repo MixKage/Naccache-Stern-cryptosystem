@@ -200,8 +200,19 @@ if __name__ == '__main__':
     # print(tmp)
     # print(crypt.decrypt(tmp))# 202
     # print(divide(7,2))
+
+    arrayNumbers = generate_array_prime_number(lenght=4, maxInt=20)
+    print(arrayNumbers)
     EncClass = Encrypt([3, 5, 7, 11, 13, 17], 101, 191, 131)
-    encInfo = EncClass.encrypt(220)
+
+# #generate_array_prime_number(8,70)
+#     enc = Encrypt([3, 5, 7, 11, 13, 17], generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300))
+#     mes = enc.encrypt(123123123)
+#     print("ENCRYPT -" + mes)
+#     dec = Decrypt(enc.pk, enc.g, enc.n, enc.phi)
+#     print("ANSWER - " + str(dec.decrypt(mes)))
+
+    encInfo = EncClass.encrypt(111111)
     print(encInfo)
     DecClass = Decrypt(EncClass.pk, EncClass.g, EncClass.n, EncClass.phi) #pk, g, n, phi
     print(DecClass.decrypt(encInfo))

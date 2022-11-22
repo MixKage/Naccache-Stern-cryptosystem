@@ -16,18 +16,18 @@ class Encrypt:
         self.g = g
         self.pk = pk
         k = len(pk)
-        p = 2 * a * reduce(lambda x, y: x*y, pk[:myDivide(k,2)]) + 1
-        q = 2 * b * reduce(lambda x, y: x*y, pk[myDivide(k,2):]) + 1
+        self.p = 2 * a * reduce(lambda x, y: x*y, pk[:myDivide(k,2)]) + 1
+        self.q = 2 * b * reduce(lambda x, y: x*y, pk[myDivide(k,2):]) + 1
         self.sigma = reduce(lambda x, y: x*y, pk)
-        self.n = p * q
-        self.phi = (p - 1) * (q - 1)
+        self.n = self.p * self.q
+        self.phi = (self.p - 1) * (self.q - 1)
 
     def encrypt(self, m):
         x = _generate_prime_number(length=len(bin(self.n)) - 2)
         # x ^ sigma % n
-        x = pow(x, self.sigma, self.n)
-        g = pow(self.g, m, self.n)
-        return pow(x * g, 1, self.n)
+        x = myPow(x, self.sigma, self.n)
+        g = myPow(self.g, m, self.n)
+        return myPow(x * g, 1, self.n)
 
 # miller-rabi
 def _is_prime(n, k=128):
@@ -52,11 +52,11 @@ def _is_prime(n, k=128):
     # сделать k тестов
     for _ in range(k):
         a = randrange(2, n - 1)
-        x = pow(a, r, n)
+        x = myPow(a, r, n)
         if x != 1 and x != n - 1:
             j = 1
             while j < s and x != n - 1:
-                x = pow(x, 2, n)
+                x = myPow(x, 2, n)
                 if x == 1:
                     return False
                 j += 1
