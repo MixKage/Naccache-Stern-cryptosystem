@@ -1,13 +1,14 @@
 from functools import reduce
 from MyMath import *
 
-import MyMath
+
 class Decrypt:
+    # Шифрование используя закрытые ключи
     def decrypt(c: int, pk, phi, g, n):
         mk = []
 
         for pi in pk:
-            ci = myPow(c, int(MyMath.myDivide(phi, pi)), n)
+            ci = myPow(c, int(myDivide(phi, pi)), n)
             for j in range(0, pi):
                 if ci == myPow(g, myDivide(phi * j, pi), n):
                     mk.append(j)

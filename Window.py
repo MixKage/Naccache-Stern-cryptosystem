@@ -274,6 +274,7 @@ class DecryptWindow(QWidget):
 
     def decryptFunc(self):
         try:      
+            self.getInfo()
             encryptArray = self.ns.nakashStern.encryptMessage.split()
             decText = ''
             for encChar in encryptArray:      

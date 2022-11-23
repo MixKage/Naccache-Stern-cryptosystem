@@ -1,12 +1,15 @@
 import random
 
-
-def myPow(x, y, N):
+# Используем собсвенное возведение в степень по модулю
+def myPow(x: int, y: int, N: int):
     return __pow__(x, y, N)
 
-def myDivide(N, D):
+# Используем собсвенное деление (не самый эффективный метод)
+def myDivide(N: int, D: int):
     return int(__divide__(N, D))
 
+# Реализация возведения в степень по модулю
+# x ** y % N (наш способ гораздо быстрее и менее прожорлив)
 def __pow__(x, y, N):
     if (y == 0):
         return 1
@@ -21,18 +24,20 @@ def generate_array_prime_number(lenght = 100, maxInt = 214123):
     arrayPrimeNumber = []
     if(lenght % 2 != 0):
         lenght = 10
-        print("Lenght не может быть не чётным")
+        raise ValueError('Lenght не может быть не чётным')
     
     for _ in range(lenght):
         if(len(arrayPrimeNumber)==0):
             arrayPrimeNumber.append(generate_prime_small_number(0, [], maxInt))
         else:
+            # Каждое следующее простое число будет больше первого сгенерированного
             arrayPrimeNumber.append(generate_prime_small_number(arrayPrimeNumber[0],arrayPrimeNumber,maxInt))
+
     arrayPrimeNumber.sort()
     return arrayPrimeNumber
 
 # Генерация маленьких простых чисел
-def generate_prime_small_number(min, arrayPrimeNumber, max = 214123):
+def generate_prime_small_number(min: int, arrayPrimeNumber, max = 214123):
     randNum = random.randint(min, max)
     while True:
         if(miller_rabi(randNum) and not (randNum in arrayPrimeNumber)):
@@ -45,7 +50,7 @@ def generate_prime_small_number(min, arrayPrimeNumber, max = 214123):
 
 
 # Перибор
-def is_prime_enumeration(num):
+def is_prime_enumeration(num: int):
     if num % 2 == 0:
         return num == 2
     d = 3
@@ -54,7 +59,7 @@ def is_prime_enumeration(num):
     return d * d > num
 
 # Ферма
-def is_prime_ferma(num, test_count=120):
+def is_prime_ferma(num: int, test_count=120):
     for i in range(test_count):
         rnd = random.randint(1, num - 1)
         if (__pow__(rnd, (num - 1), num) != 1):
@@ -63,7 +68,7 @@ def is_prime_ferma(num, test_count=120):
     return True
 
 # miller-rabi
-def miller_rabi(n, k=128):
+def miller_rabi(n: int, k=128):
     """ Проверить, является ли число простым
         Аргументы:
             n -- int -- число для проверки
@@ -107,6 +112,7 @@ def __divideUnsigned__(N, D):
     qr = [Q, R]
     return qr
 
+# Узнать свободное ли число от квадратов
 def freeSqueareNumber(num):
     squeareNum = 2
     while True:
@@ -117,6 +123,7 @@ def freeSqueareNumber(num):
             return False
         squeareNum += 1
 
+# Реализация собственного деления (не эффективный метод для больших чисел)
 def __divide__(N, D):
    return N//D
     # qr = [0, 0]

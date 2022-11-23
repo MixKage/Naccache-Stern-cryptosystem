@@ -36,7 +36,8 @@ class NakasheStern:
         self.n = self.p * self.q
         self.phi = (self.p - 1) * (self.q - 1)
 
-    def CreateNakasheSternClass():
+    # Генерация и проверка значений (шифруем-расшифруем)
+    def CreateNakasheSternClass(debugMode: bool = False):
         countError = 0
         while True:
             while True:
@@ -51,16 +52,18 @@ class NakasheStern:
                 except:
                     countError+=1
             try:
-                encMessage: int = Encrypt.encrypt(220, NSC.sigma, NSC.g, NSC.n)
-                print(encMessage)
-                print(Decrypt.decrypt(encMessage, NSC.pk, NSC.phi, NSC.g, NSC.n))
-                print(f"Count Error {countError}")
-                print(f"pk = {NSC.pk}")
-                print(f"n = {NSC.n}")
-                print(f"p = {NSC.p}")
-                print(f"q = {NSC.q}")
-                print(f"sigma = {NSC.sigma}")
-                print(f"g = {NSC.g}")
+                encMessage: int = Encrypt.encrypt(99999, NSC.sigma, NSC.g, NSC.n)
+                # Для простого отслеживания значений
+                if(debugMode):
+                    print(encMessage)
+                    print(Decrypt.decrypt(encMessage, NSC.pk, NSC.phi, NSC.g, NSC.n))
+                    print(f"Count Error {countError}")
+                    print(f"pk = {NSC.pk}")
+                    print(f"n = {NSC.n}")
+                    print(f"p = {NSC.p}")
+                    print(f"q = {NSC.q}")
+                    print(f"sigma = {NSC.sigma}")
+                    print(f"g = {NSC.g}")
                 return NSC
             except:
                 countError+=1
