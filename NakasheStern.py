@@ -1,15 +1,22 @@
-from random import getrandbits, randrange
+from random import getrandbits, randrange, randint
 from functools import reduce
 from MyMath import *
+from EncryptCode import *
+from DecryptCode import *
 
 class NakasheStern:
     def __init__(self, pk, a, b, g):
         """
-        k - кол-во простых чисел p1, ..., pk - списка pk
+        k - кол-во простых чисел p1, ..., pk - списка pk (должен быть чётным)
         pk - список простых чисел p1, ..., pk
-        a, b - простые числа. Используются в генерации p и q
+        a, b - простые числа. Используются в генерации p и q (так же простые числа)
         g - основание, которое нужно возводить в степень шифруемого сообщения
+        sigma - перемножение всех чисел из массива pk
+        n - p * q
+        phi - (p-1) * (q-1)
         """
+        self.a = a
+        self.b = b
         self.g = g
         self.pk = pk
         k = len(pk)
@@ -28,3 +35,32 @@ class NakasheStern:
 
         self.n = self.p * self.q
         self.phi = (self.p - 1) * (self.q - 1)
+
+    def CreateNakasheSternClass():
+        countError = 0
+        while True:
+            while True:
+                try:
+                    countArray = 10
+                    while True:
+                        countArray = randint(4,11)
+                        if countArray % 2 == 0:
+                            break 
+                    NSC = NakasheStern(generate_array_prime_number(countArray,70), generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300))
+                    break
+                except:
+                    countError+=1
+            try:
+                encMessage: int = Encrypt.encrypt(220, NSC.sigma, NSC.g, NSC.n)
+                print(encMessage)
+                print(Decrypt.decrypt(encMessage, NSC.pk, NSC.phi, NSC.g, NSC.n))
+                print(f"Count Error {countError}")
+                print(f"pk = {NSC.pk}")
+                print(f"n = {NSC.n}")
+                print(f"p = {NSC.p}")
+                print(f"q = {NSC.q}")
+                print(f"sigma = {NSC.sigma}")
+                print(f"g = {NSC.g}")
+                return NSC
+            except:
+                countError+=1

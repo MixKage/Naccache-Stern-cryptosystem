@@ -209,36 +209,10 @@ if __name__ == '__main__':
     arrayNumbers = generate_array_prime_number(lenght=4, maxInt=20)
     print(arrayNumbers)
     
-    #EncClass = Encrypt([3, 5, 7, 11, 13, 17], 101, 191, 131)
-    EncClass = None
-    countError = 0
-    while True:
-        while True:
-            try:
-                countArray = 10
-                while True:
-                    countArray = randint(4,11)
-                    if countArray % 2 == 0:
-                        break 
-                NSC = NakasheStern(generate_array_prime_number(countArray,70), generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300))
-                break
-            except:
-                countError+=1
-        try:
-            encMessage: int = Encrypt.encrypt(220, NSC.sigma, NSC.g, NSC.n)
-            print(encMessage)
-            print(Decrypt.decrypt(encMessage, NSC.pk, NSC.phi, NSC.g, NSC.n))
-            print(f"Count Error {countError}")
-            print(f"pk = {NSC.pk}")
-            print(f"n = {NSC.n}")
-            print(f"p = {NSC.p}")
-            print(f"q = {NSC.q}")
-            print(f"sigma = {NSC.sigma}")
-            print(f"g = {NSC.g}")
-            break
-        except:
-            countError+=1
-
+    cryptClass = NakasheStern.CreateNakasheSternClass()
+    encNum = Encrypt.encrypt(99999999, cryptClass.sigma, cryptClass.g, cryptClass.n)
+    decNum = Decrypt.decrypt(encNum, cryptClass.pk, cryptClass.phi, cryptClass.g, cryptClass.n)
+    print(decNum)
 # #generate_array_prime_number(8,70)
 #     enc = Encrypt([3, 5, 7, 11, 13, 17], generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300))
 #     mes = enc.encrypt(123123123)

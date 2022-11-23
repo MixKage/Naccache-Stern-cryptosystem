@@ -3,33 +3,21 @@ import sys
 from MyMath import *
 from EncryptCode import *
 from DecryptCode import *
+from NakasheStern import *
+
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIntValidator
+from PyQt6.QtGui import QIntValidator, QFont
 from PyQt6.QtWidgets import (
     QApplication,
-    QCheckBox,
-    QComboBox,
-    QDateEdit,
-    QDateTimeEdit,
-    QDial,
-    QDoubleSpinBox,
-    QFontComboBox,
     QLabel,
-    QLCDNumber,
     QLineEdit,
     QMainWindow,
-    QProgressBar,
     QPushButton,
-    QRadioButton,
-    QSlider,
-    QSpinBox,
-    QTimeEdit,
     QVBoxLayout,
     QDialog, 
     QHBoxLayout,
     QWidget,
     QFormLayout,
-    QDialogButtonBox
 )
 
 from random import randint
@@ -48,18 +36,67 @@ class ErrorDialog(QDialog):
 class GenerateKey(QWidget):
     def __init__(self):
         super().__init__()
-
+        self.nakashStern = None
+        self.encryptMessage = ""
         self.setWindowTitle("Генерация ключей")
-        self.dlgLayout = QVBoxLayout()
-        message = QLabel("Удалить этот текст")
-        self.dlgLayout.addWidget(message)
-        self.setLayout(self.dlgLayout)
+        self.mainInfo = QLabel("Генерация данных и формирования открытого ключа", self)
+        self.openKeyInfo = QLabel("Открытые ключи:", self)
+        self.closeKeyInfo = QLabel("Закрытие ключи:", self)
+        self.mainInfo.setFont(QFont('Cocoa', 16, 500))
+        self.closeKeyInfo.setFont(QFont('Cocoa', 14, 500))
+        self.openKeyInfo.setFont(QFont('Cocoa', 14, 500))
+        
+        self.g = QLabel("G = ")
+        self.a = QLabel("A = ")
+        self.b = QLabel("B = ")
+        self.pk = QLabel("PK = ")
+        self.p = QLabel("P = ")
+        self.q = QLabel("Q = ")
+        self.n = QLabel("N = ")
+        self.sigma = QLabel("Sigma = ")
+        self.phi = QLabel("Phi = ")
+        self.bGenerate = QPushButton("Генерация ключей", self)
+        self.bGenerate.clicked.connect(self.generated_info)
+
+        self.mainLayout = QVBoxLayout()
+        self.mainLayout.addWidget(self.mainInfo)
+        self.mainLayout.addWidget(self.a)
+        self.mainLayout.addWidget(self.b)
+        self.mainLayout.addWidget(self.pk)
+        self.mainLayout.addWidget(self.phi)
+        self.mainLayout.addWidget(self.closeKeyInfo)
+        self.mainLayout.addWidget(self.p)
+        self.mainLayout.addWidget(self.q)
+        self.mainLayout.addWidget(self.openKeyInfo)
+        self.mainLayout.addWidget(self.n)
+        self.mainLayout.addWidget(self.sigma)
+        self.mainLayout.addWidget(self.g)
+        self.mainLayout.addWidget(self.bGenerate)
+        self.setLayout(self.mainLayout)
+
+
+    def generated_info(self):
+        try:
+            self.nakashStern = NakasheStern.CreateNakasheSternClass()
+            self.g.setText(f"G = {self.nakashStern.g}")
+            self.pk.setText(f"PK = {self.nakashStern.pk}")
+            self.a.setText(f"A = {self.nakashStern.a}")
+            self.b.setText(f"B = {self.nakashStern.b}")
+            self.p.setText(f"P = {self.nakashStern.p}")
+            self.q.setText(f"Q = {self.nakashStern.q}")
+            self.n.setText(f"N = {self.nakashStern.n}")
+            self.sigma.setText(f"Sigma = {self.nakashStern.sigma}")
+            self.phi.setText(f"Phi = {self.nakashStern.phi}")
+        except Exception as e:
+            ErrorDialog(e)
+
 
 class PrimeNumbers(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Простые числа")
         self.info = QLabel("Проверка чисел на простоту")
+        self.info.setFont(QFont('Cocoa', 16, 500))
         self.inputNumber = QLineEdit()
         self.inputNumber.textChanged.connect(self.clearAnswers)
         self.onlyInt = QIntValidator()
@@ -129,81 +166,58 @@ class PrimeNumbers(QWidget):
             
 
 class EncryptWindow(QWidget):
-    def __init__(self):
+    def __init__(self, nakSternWindow):
         super().__init__()
         self.setWindowTitle("Шифрование")
-        self.dec = None
-        self.encInfo = ""
-        self.info = QLabel("Генерация данных и формирования открытого ключа")
-        self.g = QLabel("G = ")
-        self.pk = QLabel("PK = ")
-        self.p = QLabel("P = ")
-        self.q = QLabel("Q = ")
-        self.n = QLabel("N = ")
+        # Информация из NakasheStern class
+        self.ns = nakSternWindow
+        self.info = QLabel("Получение данных и шифрование сообщения")
+        self.info.setFont(QFont('Cocoa', 16, 500))
+        self.openKeyInfo = QLabel("Открытые ключи:")
         self.sigma = QLabel("Sigma = ")
-        self.phi = QLabel("Phi = ")
+        self.g = QLabel("G = ")
+        self.n = QLabel("N = ")
         self.message = QLineEdit()
-        self.bGenerate = QPushButton("Генерация данных", self)
-        self.bGenerate.clicked.connect(self.generated_info)
+        self.bGetInfo = QPushButton("Получение данных", self)
+        self.bGetInfo.clicked.connect(self.generated_info)
         self.bEncrypt = QPushButton("Шифрование", self)
         self.bEncrypt.clicked.connect(self.ecnryptFunc)
-        self.bGenerateNumber = QPushButton("Генерация числа", self)
-        self.bGenerateNumber.clicked.connect(self.generateNumber)
-        self.answer = QLabel(f"Шифрованный результат: {self.encInfo}")
+        self.answer = QLabel(f"Шифрованное сообщение:")
 
         self.mainLayout = QVBoxLayout()
         self.mainLayout.addWidget(self.info)
-        self.mainLayout.addWidget(self.g)
-        self.mainLayout.addWidget(self.pk)
-        self.mainLayout.addWidget(self.p)
-        self.mainLayout.addWidget(self.q)
-        self.mainLayout.addWidget(self.n)
+        self.mainLayout.addWidget(self.openKeyInfo)
         self.mainLayout.addWidget(self.sigma)
-        self.mainLayout.addWidget(self.phi)
+        self.mainLayout.addWidget(self.g)
+        self.mainLayout.addWidget(self.n)
+        self.mainLayout.addWidget(self.message)
         self.lH1 = QHBoxLayout()
-        self.lH2 = QHBoxLayout()
-        self.lH1.addWidget(self.message)
-        self.lH1.addWidget(self.bGenerateNumber)
-        self.lH2.addWidget(self.bGenerate)
-        self.lH2.addWidget(self.bEncrypt)
+        self.lH1.addWidget(self.bGetInfo)
+        self.lH1.addWidget(self.bEncrypt)
         self.mainLayout.addLayout(self.lH1)
-        self.mainLayout.addLayout(self.lH2)
         self.mainLayout.addWidget(self.answer)
         self.setLayout(self.mainLayout)
 
 
     def generated_info(self):
         try:
-            countArray = 10
-            while True:
-                countArray = randint(4,11)
-                if countArray % 2 == 0:
-                    break
-            self.dec = Encrypt(generate_array_prime_number(countArray,70), generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300))
-            self.g.setText(f"G = {self.dec.g}")
-            self.pk.setText(f"PK = {self.dec.pk}")
-            self.p.setText(f"P = {self.dec.p}")
-            self.q.setText(f"Q = {self.dec.q}")
-            self.n.setText(f"N = {self.dec.n}")
-            self.sigma.setText(f"Sigma = {self.dec.sigma}")
-            self.phi.setText(f"Phi = {self.dec.phi}")
+            self.sigma.setText(f"Sigma = {self.ns.nakashStern.sigma}")
+            self.g.setText(f"G = {self.ns.nakashStern.g}")
+            self.n.setText(f"N = {self.ns.nakashStern.n}")
         except Exception as e:
             ErrorDialog(e)
 
     def ecnryptFunc(self):
         try:
-            if(str(self.phi.text())=="Phi = "):
-                self.answer.setText("Шифрованный результат: не хватает данных")
-            else:
-                EncClass = Encrypt([3, 5, 7, 11, 13, 17], 101, 191, 131)
-
-                text = self.message.text()
-                self.encInfo = ""
-                for char in text:
-                    self.encInfo += str(EncClass.encrypt(ord(char))) + " "
-                
-                #self.encInfo = str(EncClass.encrypt(int(self.message.text())))
-                self.answer.setText(f"Шифрованный результат: {self.encInfo}")
+            self.generated_info()
+            text = self.message.text()
+            encInfo = ""
+            for char in text:
+                encInfo += str(Encrypt.encrypt(ord(char), self.ns.nakashStern.sigma, self.ns.nakashStern.g, self.ns.nakashStern.n)) + " "
+            
+            #self.encInfo = str(EncClass.encrypt(int(self.message.text())))
+            self.answer.setText(f"Шифрованное сообщение: {encInfo}")
+            self.ns.nakashStern.encryptMessage = encInfo
         except Exception as e:
             ErrorDialog(e)
 
@@ -215,12 +229,12 @@ class EncryptWindow(QWidget):
 
 
 class DecryptWindow(QWidget):
-    def __init__(self, windowEncrypt: EncryptWindow):
+    def __init__(self, nakSternWindow):
         super().__init__()
-        self.windowEncrypt = windowEncrypt # Получение окна
+        self.ns = nakSternWindow # Получение окна
         self.setWindowTitle("Дешифрование")
-        self.decInfo = ""
-        self.info = QLabel("Получение открытых ключей и дешифрование")
+        self.info = QLabel("Получение закрытых ключей и шифрование")
+        self.info.setFont(QFont('Cocoa', 16, 500))
         self.g = QLabel("G = ")
         self.pk = QLabel("PK = ")
         self.n = QLabel("N = ")
@@ -230,7 +244,7 @@ class DecryptWindow(QWidget):
         self.bGetKey.clicked.connect(self.getInfo)
         self.bDecrypt = QPushButton("Дешифрование данных", self)
         self.bDecrypt.clicked.connect(self.decryptFunc)
-        self.answer = QLabel(f"Расшифрованный результат: {self.decInfo}")
+        self.answer = QLabel(f"Расшифрованное сообщение:")
 
         self.mainLayout = QVBoxLayout()
         self.mainLayout.addWidget(self.info)
@@ -248,23 +262,21 @@ class DecryptWindow(QWidget):
 
     def getInfo(self):
         try:
-            self.g.setText(self.windowEncrypt.g.text())
-            self.pk.setText(self.windowEncrypt.pk.text())
-            self.n.setText(self.windowEncrypt.n.text())
-            self.phi.setText(self.windowEncrypt.phi.text())
-            self.encInfo.setText("Зашифрованные данные: " + self.windowEncrypt.encInfo)
+            self.g.setText(str(self.ns.nakashStern.g))
+            self.pk.setText(str(self.ns.nakashStern.pk))
+            self.n.setText(str(self.ns.nakashStern.n))
+            self.phi.setText(str(self.ns.nakashStern.phi))
+            self.encInfo.setText("Зашифрованные данные: " + self.ns.nakashStern.encryptMessage)
         except Exception as e:
             ErrorDialog(e)
 
     def decryptFunc(self):
         try:      
-            dec = Decrypt([3, 5, 7, 11, 13, 17], 131, self.windowEncrypt.n, self.windowEncrypt.phi)
-            encryptArray = self.windowEncrypt.encInfo.split()
+            encryptArray = self.ns.nakashStern.encryptMessage.split()
             decText = ""
             for encChar in encryptArray:      
-                print(dec.decrypt(int(encChar)))
-                decText += chr(dec.decrypt(int(encChar)))
-            self.answer.setText(decText)
+                decText += chr(Decrypt.decrypt(int(encChar), self.ns.nakashStern.pk, self.ns.nakashStern.phi, self.ns.nakashStern.g, self.ns.nakashStern.n))
+            self.answer.setText("Расшифрованное сообщение: " + decText)
             
         except Exception as e:
             ErrorDialog(e)
@@ -310,18 +322,18 @@ class MainWindow(QMainWindow):
             if(self.w4 is None):
                 ErrorDialog("Необходимо сначала сгенерировать ключи")
             else:
-                self.w2 = EncryptWindow()
+                self.w2 = EncryptWindow(self.w4)
                 self.w2.show()
+                self.button3.setDisabled(False)
     def show_new_window3(self, checked):
         if self.w3 is None:
-            if(self.w4 is None):
+            if(self.w4 is None or self.w2 is None):
                 ErrorDialog("Необходимо сначала сгенерировать ключи")
             else:
-                self.w3 = DecryptWindow(self.w2)
+                self.w3 = DecryptWindow(self.w4)
                 self.w3.show() 
     def show_new_window4(self, checked):
         self.button2.setDisabled(False)
-        self.button3.setDisabled(False)
         if self.w4 is None:
             self.w4 = GenerateKey()
         self.w4.show()
