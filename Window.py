@@ -45,6 +45,15 @@ class ErrorDialog(QDialog):
         self.setLayout(self.dlgLayout)
         self.exec()
 
+class GenerateKey(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Генерация ключей")
+        self.dlgLayout = QVBoxLayout()
+        message = QLabel("Удалить этот текст")
+        self.dlgLayout.addWidget(message)
+        self.setLayout(self.dlgLayout)
 
 class PrimeNumbers(QWidget):
     def __init__(self):
@@ -84,9 +93,10 @@ class PrimeNumbers(QWidget):
         self.layout.setSpacing(10)
         self.setFixedSize(350,200)
 
+
     def generateNumber(self):
         try:
-            self.inputNumber.setText(str(randint(0,2147483647)))
+            self.inputNumber.setText(str(randint(0,9999999999999999999)))
         except Exception as e:
             ErrorDialog(e)
 
@@ -133,8 +143,6 @@ class EncryptWindow(QWidget):
         self.sigma = QLabel("Sigma = ")
         self.phi = QLabel("Phi = ")
         self.message = QLineEdit()
-        self.onlyInt = QIntValidator()
-        self.message.setValidator(self.onlyInt)
         self.bGenerate = QPushButton("Генерация данных", self)
         self.bGenerate.clicked.connect(self.generated_info)
         self.bEncrypt = QPushButton("Шифрование", self)
@@ -168,7 +176,7 @@ class EncryptWindow(QWidget):
         try:
             countArray = 10
             while True:
-                countArray = randint(4,12)
+                countArray = randint(4,11)
                 if countArray % 2 == 0:
                     break
             self.dec = Encrypt(generate_array_prime_number(countArray,70), generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300))
@@ -181,15 +189,20 @@ class EncryptWindow(QWidget):
             self.phi.setText(f"Phi = {self.dec.phi}")
         except Exception as e:
             ErrorDialog(e)
-    
+
     def ecnryptFunc(self):
         try:
-            tmp = str(self.phi.text())
             if(str(self.phi.text())=="Phi = "):
                 self.answer.setText("Шифрованный результат: не хватает данных")
             else:
                 EncClass = Encrypt([3, 5, 7, 11, 13, 17], 101, 191, 131)
-                self.encInfo = str(EncClass.encrypt(int(self.message.text())))
+
+                text = self.message.text()
+                self.encInfo = ""
+                for char in text:
+                    self.encInfo += str(EncClass.encrypt(ord(char))) + " "
+                
+                #self.encInfo = str(EncClass.encrypt(int(self.message.text())))
                 self.answer.setText(f"Шифрованный результат: {self.encInfo}")
         except Exception as e:
             ErrorDialog(e)
@@ -244,35 +257,47 @@ class DecryptWindow(QWidget):
             ErrorDialog(e)
 
     def decryptFunc(self):
-        try:            
-            dec = Decrypt([3, 5, 7, 11, 13, 17], self.windowEncrypt.dec.g, self.windowEncrypt.dec.n, self.windowEncrypt.dec.phi)
-            print(int(self.windowEncrypt.encInfo))
-            self.answer.setText(str(dec.decrypt(int(self.windowEncrypt.encInfo))))
+        try:      
+            dec = Decrypt([3, 5, 7, 11, 13, 17], 131, self.windowEncrypt.n, self.windowEncrypt.phi)
+            encryptArray = self.windowEncrypt.encInfo.split()
+            decText = ""
+            for encChar in encryptArray:      
+                print(dec.decrypt(int(encChar)))
+                decText += chr(dec.decrypt(int(encChar)))
+            self.answer.setText(decText)
+            
         except Exception as e:
             ErrorDialog(e)
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.w = None  # No external window yet.
-        self.w2 = None
-        self.w3 = None
+        self.w = None  # Random
+        self.w2 = None # Encrypt
+        self.w3 = None # Decrypt
+        self.w4 = None # Key
         self.setWindowTitle("Накаше-Штерна")
 
-        mainWindget = QWidget()        
+        mainWindget = QWidget()     
+        lineEdit4 = QLabel("Генерация ключей", alignment = Qt.AlignmentFlag.AlignCenter)
+        button4 = QPushButton("Открыть")   
+        button4.clicked.connect(self.show_new_window4)
         lineEdit1 = QLabel("Проверка числа на простоту", alignment = Qt.AlignmentFlag.AlignCenter)
         button1 = QPushButton("Открыть")
         button1.clicked.connect(self.show_new_window)
         lineEdit2 = QLabel("Шифрование", alignment = Qt.AlignmentFlag.AlignCenter)
-        button2 = QPushButton("Открыть")
-        button2.clicked.connect(self.show_new_window2)
+        self.button2 = QPushButton("Открыть")
+        self.button2.clicked.connect(self.show_new_window2)
         lineEdit3 = QLabel("Дешифрование", alignment = Qt.AlignmentFlag.AlignCenter)
-        button3 = QPushButton("Открыть")
-        button3.clicked.connect(self.show_new_window3)
+        self.button3 = QPushButton("Открыть")
+        self.button3.clicked.connect(self.show_new_window3)
         layout = QFormLayout()
+        layout.addRow(lineEdit4, button4)
         layout.addRow(lineEdit1, button1)
-        layout.addRow(lineEdit2, button2)
-        layout.addRow(lineEdit3, button3)
+        layout.addRow(lineEdit2, self.button2)
+        layout.addRow(lineEdit3, self.button3)
+        self.button2.setDisabled(True)
+        self.button3.setDisabled(True)
         mainWindget.setLayout(layout)
         self.setCentralWidget(mainWindget)
 
@@ -282,15 +307,25 @@ class MainWindow(QMainWindow):
         self.w.show()
     def show_new_window2(self, checked):
         if self.w2 is None:
-            self.w2 = EncryptWindow()
-        self.w2.show()
+            if(self.w4 is None):
+                ErrorDialog("Необходимо сначала сгенерировать ключи")
+            else:
+                self.w2 = EncryptWindow()
+                self.w2.show()
     def show_new_window3(self, checked):
         if self.w3 is None:
-            if(self.w2 is None):
-                ErrorDialog("Необходимо сначала запустить шифрование")
+            if(self.w4 is None):
+                ErrorDialog("Необходимо сначала сгенерировать ключи")
             else:
                 self.w3 = DecryptWindow(self.w2)
-                self.w3.show()     
+                self.w3.show() 
+    def show_new_window4(self, checked):
+        self.button2.setDisabled(False)
+        self.button3.setDisabled(False)
+        if self.w4 is None:
+            self.w4 = GenerateKey()
+        self.w4.show()
+
 
 
 

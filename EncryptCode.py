@@ -5,29 +5,12 @@ from MyMath import *
 #Криптосистема Накаша — Штерна
 
 class Encrypt:
-    def __init__(self, pk, a, b, g):
-        """
-        k - кол-во простых чисел p1, ..., pk - списка pk
-        pk - список простых чисел p1, ..., pk
-        a, b - простые числа. Используются в генерации p и q(см. алгоритм генерации ключа в криптосистеме
-            Накаше-Штерна)
-        g - основание, которое нужно возводить в степень шифруемого сообщения
-        """
-        self.g = g
-        self.pk = pk
-        k = len(pk)
-        self.p = 2 * a * reduce(lambda x, y: x*y, pk[:myDivide(k,2)]) + 1
-        self.q = 2 * b * reduce(lambda x, y: x*y, pk[myDivide(k,2):]) + 1
-        self.sigma = reduce(lambda x, y: x*y, pk)
-        self.n = self.p * self.q
-        self.phi = (self.p - 1) * (self.q - 1)
-
-    def encrypt(self, m):
-        x = _generate_prime_number(length=len(bin(self.n)) - 2)
+    def encrypt(m, sigma, g, n):
+        x = _generate_prime_number(length=len(bin(n)) - 2)
         # x ^ sigma % n
-        x = myPow(x, self.sigma, self.n)
-        g = myPow(self.g, m, self.n)
-        return myPow(x * g, 1, self.n)
+        x = myPow(x, sigma, n)
+        newG = myPow(g, m, n)
+        return myPow(x * newG, 1, n)
 
 # miller-rabi
 def _is_prime(n, k=128):

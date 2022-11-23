@@ -3,29 +3,15 @@ from MyMath import *
 
 import MyMath
 class Decrypt:
-    def __init__(self, pk, g, n, phi):
-        """
-        k - кол-во простых чисел p1, ..., pk - списка pk
-        pk - список простых чисел p1, ..., pk
-        a, b - простые числа. Используются в генерации p и q(см. алгоритм генерации ключа в криптосистеме
-            Накаше-Штерна)
-        g - основание, которое нужно возводить в степень шифруемого сообщения
-        """
-        self.g = g
-        self.pk = pk
-        self.n = n # Получаем как открытый ключ
-        self.phi = phi # Получаем как открытый ключ
-   
-    def decrypt(self, c):
+    def decrypt(c: int, pk, phi, g, n):
         mk = []
-       
-        for pi in self.pk:
-            ci = myPow(c, int(MyMath.myDivide(self.phi, pi)), self.n)
+
+        for pi in pk:
+            ci = myPow(c, int(MyMath.myDivide(phi, pi)), n)
             for j in range(0, pi):
-                # print(myPow(self.g, myDivide(self.phi * j, pi), self.n))
-                if ci == myPow(self.g, myDivide(self.phi * j, pi), self.n):
+                if ci == myPow(g, myDivide(phi * j, pi), n):
                     mk.append(j)
-        return crt(list(self.pk), list(mk))
+        return crt(list(pk), list(mk))
 
 # функция, реализующая китайскую теорему об остатках
 # список m содержит все модули

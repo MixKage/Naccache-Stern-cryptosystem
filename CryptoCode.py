@@ -1,6 +1,7 @@
 from functools import reduce
-from random import getrandbits, randrange
+from random import getrandbits, randrange, randint
 from MyMath import *
+from NakasheStern import *
 from EncryptCode import *
 from DecryptCode import *
 
@@ -171,6 +172,10 @@ class NakacheSternCryptosystem:
 
         q = 2 * b * reduce(lambda x, y: x*y, pk[int(k/2):]) + 1
         self.sigma = reduce(lambda x, y: x*y, pk)
+        #
+        print(self.sigma % 2 == 0)
+        print(freeSqueareNumber(self.sigma))
+        #
         self.n = p * q #21211 #928643
         self.phi = (p - 1) * (q - 1)
         
@@ -194,8 +199,8 @@ class NakacheSternCryptosystem:
 
 
 if __name__ == '__main__':
-    # crypt = NakacheSternCryptosystem([3, 5, 7, 11, 13, 17], 101, 191, 131)
-    # tmp = crypt.encrypt(202)
+    crypt = NakacheSternCryptosystem([3, 5, 7, 11, 13, 17], 101, 191, 131)
+    tmp = crypt.encrypt(202)
     # print(type(tmp))
     # print(tmp)
     # print(crypt.decrypt(tmp))# 202
@@ -203,7 +208,36 @@ if __name__ == '__main__':
 
     arrayNumbers = generate_array_prime_number(lenght=4, maxInt=20)
     print(arrayNumbers)
-    EncClass = Encrypt([3, 5, 7, 11, 13, 17], 101, 191, 131)
+    
+    #EncClass = Encrypt([3, 5, 7, 11, 13, 17], 101, 191, 131)
+    EncClass = None
+    countError = 0
+    while True:
+        while True:
+            try:
+                countArray = 10
+                while True:
+                    countArray = randint(4,11)
+                    if countArray % 2 == 0:
+                        break 
+                NSC = NakasheStern(generate_array_prime_number(countArray,70), generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300))
+                break
+            except:
+                countError+=1
+        try:
+            encMessage: int = Encrypt.encrypt(220, NSC.sigma, NSC.g, NSC.n)
+            print(encMessage)
+            print(Decrypt.decrypt(encMessage, NSC.pk, NSC.phi, NSC.g, NSC.n))
+            print(f"Count Error {countError}")
+            print(f"pk = {NSC.pk}")
+            print(f"n = {NSC.n}")
+            print(f"p = {NSC.p}")
+            print(f"q = {NSC.q}")
+            print(f"sigma = {NSC.sigma}")
+            print(f"g = {NSC.g}")
+            break
+        except:
+            countError+=1
 
 # #generate_array_prime_number(8,70)
 #     enc = Encrypt([3, 5, 7, 11, 13, 17], generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300), generate_prime_small_number(0, [], 300))
@@ -212,7 +246,8 @@ if __name__ == '__main__':
 #     dec = Decrypt(enc.pk, enc.g, enc.n, enc.phi)
 #     print("ANSWER - " + str(dec.decrypt(mes)))
 
-    encInfo = EncClass.encrypt(111111)
-    print(encInfo)
-    DecClass = Decrypt(EncClass.pk, EncClass.g, EncClass.n, EncClass.phi) #pk, g, n, phi
-    print(DecClass.decrypt(encInfo))
+    # encInfo = EncClass.encrypt(247)
+    # print(encInfo)
+    # DecClass = Decrypt([3, 5, 7, 11, 13, 17], 131, EncClass.n, EncClass.phi) #pk, g, n, phi
+    # #DecClass = Decrypt([3, 5, 7, 11, 13, 17], 101, 191, 131) #pk, g, n, phi
+    # print(DecClass.decrypt(encInfo))

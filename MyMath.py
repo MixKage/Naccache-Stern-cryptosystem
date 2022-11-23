@@ -107,6 +107,16 @@ def __divideUnsigned__(N, D):
     qr = [Q, R]
     return qr
 
+def freeSqueareNumber(num):
+    squeareNum = 2
+    while True:
+        tmpAns = squeareNum ** squeareNum
+        if tmpAns > num:
+            return True
+        if num == tmpAns:
+            return False
+        squeareNum += 1
+
 def __divide__(N, D):
    return N//D
     # qr = [0, 0]
