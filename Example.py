@@ -8,7 +8,7 @@ from DecryptCode import *
 if __name__ == '__main__':
 
     # Генерируем ключи и всю необходимую информацию и получаем класс
-    cryptClass = NakasheStern.CreateNakasheSternClass()
+    cryptClass = NakasheStern.CreateNakasheSternClass(True)
     # Шифруем сообщение 223 используя только открытые ключи
     encNum = Encrypt.encrypt(223, cryptClass.sigma, cryptClass.g, cryptClass.n)
     # Дешифруем сообщение используя только закрытые ключи и информацию
